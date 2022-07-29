@@ -7,7 +7,7 @@
 
 import UIKit
 
-class TopCollectionViewCell: UICollectionViewCell {
+class HeaderCollectionViewCell: UICollectionViewCell {
     @IBOutlet weak var topImageView: UIImageView!
     @IBOutlet weak var topLbl: UILabel!
     

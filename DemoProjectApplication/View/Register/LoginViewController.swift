@@ -35,7 +35,19 @@ class LoginViewController: UIViewController {
         emailTextField.text = "eve.holt@reqres.in"
         passwordTextField.text = "12345"
         loginVM.delegate = self
+        //resetForm()
     }
+    
+    private func resetForm() {
+        loginBn.isEnabled = false
+         emailErrorLbl.isHidden = false
+         passwordErrorLbl.isHidden = false
+         emailErrorLbl.text = ""
+         passwordErrorLbl.text = ""
+         emailTextField.text = ""
+         passwordTextField.text = ""
+         loginBn.alpha = 0.5
+     }
     
     // MARK: - Action Methods
     @IBAction func showBtnPressed(_ sender: UIButton) {
@@ -48,10 +60,58 @@ class LoginViewController: UIViewController {
         
     }
     
+    @IBAction func didChangeEmail(_ sender: Any) {
+         let email = emailTextField.text ?? ""
+        if let errorMsg = email.isValidEmail() {
+            emailErrorLbl.text = errorMsg
+            emailErrorLbl.isHidden = false
+            emailErrorLbl.textColor = UIColor.systemRed
+            emailErrorView.backgroundColor = UIColor.systemRed
+            loginBn.isEnabled = false
+            loginBn.alpha = 0.5
+        } else {
+            emailErrorLbl.isHidden = false
+            emailErrorLbl.text = "Email"
+            emailErrorLbl.textColor = UIColor.white
+            emailErrorView.backgroundColor = UIColor.white
+        }
+        checkValidation()
+    }
+    
+    @IBAction func didChangePassword(_ sender: Any) {
+        let password = passwordTextField.text ?? ""
+        if let errorMsg = password.isValidPassword() {
+           passwordErrorLbl.text = errorMsg
+           passwordErrorLbl.isHidden = false
+           passwordErrorLbl.textColor = UIColor.systemRed
+           passwordErrorView.backgroundColor = UIColor.systemRed
+           loginBn.isEnabled = false
+           loginBn.alpha = 0.5
+       } else {
+           passwordErrorLbl.isHidden = false
+           passwordErrorLbl.text = "Password"
+           passwordErrorLbl.textColor = UIColor.white
+           passwordErrorView.backgroundColor = UIColor.white
+       }
+        checkValidation()
+    }
+    
+    private func checkValidation() {
+        if emailTextField.text != nil && passwordTextField.text != nil && (emailErrorLbl.text == "Email" && passwordErrorLbl.text == "Password") {
+            loginBn.isEnabled = true
+            loginBn.alpha = 1.0
+        } else {
+            loginBn.isEnabled = false
+            loginBn.alpha = 0.5
+        }
+    }
+    
     @IBAction func loginBtnPressed(_ sender: UIButton) {
         let emailStr = emailTextField.text ?? ""
         let passwordStr = passwordTextField.text ?? ""
+        
         loginVM.loginApi(emailStr, passwordStr)
+        LoadingIndicator.shared.showLoader(self.view)
     }
     
     @IBAction func signupBtnPressed(_ sender: UIButton) {
@@ -68,6 +128,8 @@ class LoginViewController: UIViewController {
 
 extension LoginViewController: LoginViewModelDelegate {
     func didReceiveResponse(_ result: BasicResponseModel?, _ error: String?) {
+        let emailStr = emailTextField.text
+        LoadingIndicator.shared.hideLoader()
         guard let loginResult = result else {
             debugPrint(error ?? "Login failed")
             return
